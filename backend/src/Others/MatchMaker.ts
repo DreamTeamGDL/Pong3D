@@ -1,6 +1,8 @@
 
 import {Queue} from "typescript-collections"
 import * as UUID from "uuid"
+import GameStats from "../Models/GameStats";
+import GameService from "../Services/GameService";
 
 export default class MatchMaker {
 
@@ -9,15 +11,17 @@ export default class MatchMaker {
     private cycleCounter: number;
     private maxTime: number;
     private frequency: number;
+    private gameService: GameService;
 
     public constructor(maxTime: number, frequency: number) {
         this.queue = new Queue();
         this.cycleCounter = 0;
         this.maxTime = maxTime;
         this.frequency = frequency;
+        this.gameService = new GameService();
     }
 
-    public requestUuid: () => Promise<string> = async() => {
+    public requestGameId: () => Promise<string> = async() => {
         let deferred = new DeferredPromise<string>();
         this.queue.enqueue(deferred);
         if (this.cycle == null) {
@@ -26,7 +30,7 @@ export default class MatchMaker {
         return deferred.promise;
     }
 
-    private matchCycle: () => void = () => {
+    private matchCycle = async () => {
         if (this.cycleCounter > this.maxTime * (1000 / this.frequency)) {
             let aloneDude = this.queue.dequeue()!;
             aloneDude.reject(new Error("No partner found"));
@@ -37,7 +41,10 @@ export default class MatchMaker {
         if (this.queue.size() > 1) {
             let first = this.queue.dequeue()!;
             let second = this.queue.dequeue()!;
+            const firstPlayer = first.data as string;
+            const secondPlayer = first.data as string;
             let uuid: string = UUID.v4();
+            await this.gameService.createGame(uuid, firstPlayer, secondPlayer);
             first.resolve(uuid);
             second.resolve(uuid);
             this.cycleCounter = 0;
@@ -56,12 +63,14 @@ class DeferredPromise<T> {
     private prom: Promise<T>;
     private res: ((value?: T) => void) | null = null;
     private rej: ((reason?: any) => void) | null = null;
+    private state?: any;
 
-    public constructor() {
+    public constructor(data?: any) {
         this.prom = new Promise<T>((res, rej) => {
             this.res = res;
             this.rej = rej;
         });
+        if (data) this.state = data;
     }
 
     public get promise(): Promise<T> {
@@ -74,5 +83,9 @@ class DeferredPromise<T> {
 
     public get reject(): (reason?: any) => void {
         return this.rej!;
+    }
+
+    public get data(): any {
+        return this.state ? this.state : null;
     }
 }

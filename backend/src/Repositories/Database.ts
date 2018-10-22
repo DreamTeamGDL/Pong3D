@@ -31,6 +31,10 @@ export default class Database {
         .toArray();
     }
 
+    public static async exists(query: any, collection: string): Promise<boolean> {
+        return (await Database.read(query, collection)).length != 0;
+    }
+
     public static async update(query: any, newValues: any, collection: string): Promise<boolean> {
         let operation = this.database
         .collection(collection)

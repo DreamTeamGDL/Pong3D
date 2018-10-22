@@ -7,7 +7,7 @@ import matchMakingRouter from "./Routers/MatchMakingRouter"
 import io from "./Routers/SocketRouter"
 
 const app: Express.Application = Express();
-const port = 3100;
+const port = 3000;
 
 app.use((req, res, next) => { // Handle CORS
     res.header("Access-Control-Allow-Origin", "*");
