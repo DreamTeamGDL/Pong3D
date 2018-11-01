@@ -1,10 +1,10 @@
 
-import * as Express from "express"
-import * as Parser from "body-parser"
+import * as Express from "express";
+import * as Parser from "body-parser";
 import * as Http from "http";
 
 import matchMakingRouter from "./Routers/MatchMakingRouter"
-import io from "./Routers/SocketRouter"
+import socketService from "./Services/SocketService"
 
 const app: Express.Application = Express();
 const port = 3000;
@@ -20,6 +20,6 @@ app
     .use("/", matchMakingRouter);
 
 let server: Http.Server = app.listen(port);
-io.listen(server);
+socketService.listen(server);
 
 console.log(`Listening with <3 on port ${port}`);
