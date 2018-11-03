@@ -2,6 +2,7 @@
 import Game from "../Models/Game";
 import GameStats from "../Models/GameStats";
 import GameRepository from "../Repositories/GameRepository";
+import GameArea from "../Models/GameArea";
 
 export default class GameService {
 
@@ -15,8 +16,9 @@ export default class GameService {
         let game: Game = {
             id: gameId,
             player1: this.initStats(player1),
-            player2: this.initStats(player2)
-        }
+            player2: this.initStats(player2),
+            gameArea: new GameArea(gameId)
+        };
         await this.gameRepository.createGame(game);
    }
 

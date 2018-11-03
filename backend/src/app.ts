@@ -5,6 +5,7 @@ import * as Http from "http";
 
 import matchMakingRouter from "./Routers/MatchMakingRouter"
 import socketService from "./Services/SocketService"
+import GameArea from "./Models/GameArea";
 
 const app: Express.Application = Express();
 const port = 3000;
@@ -23,3 +24,5 @@ let server: Http.Server = app.listen(port);
 socketService.listen(server);
 
 console.log(`Listening with <3 on port ${port}`);
+
+const x = new GameArea("x");

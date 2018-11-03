@@ -20,4 +20,5 @@ export interface Move {
 	objectId: string;
 	x: number;
 	y: number;
+	z: number;
 }

@@ -1,5 +1,5 @@
 import * as SocketIO from "socket.io"
-import {Server, ServerOptions, Socket} from "socket.io"
+import {Namespace, Server, ServerOptions, Socket} from "socket.io"
 import Action, {ActionType, Join, Move} from "../Models/Action";
 
 class SocketService {
@@ -7,6 +7,8 @@ class SocketService {
 	public static socketService: SocketService = new SocketService();
 
 	private io: SocketIO.Server;
+
+	private gameRooms: Map<string, Namespace> = new Map();
 
 	private constructor() {
 		this.io = SocketIO();
@@ -16,10 +18,17 @@ class SocketService {
 		});
 	}
 
+	public sendAction(uuid: string, action: Action) {
+		if (!this.gameRooms.has(uuid)) throw new Error("Game room does not exist");
+		const room = this.gameRooms.get(uuid)!;
+		room.emit(JSON.stringify(action));
+	}
+
 	public setupChatroom(uuid: string) {
 		let namespace = this.io.of(`/${uuid}`); // Creating chat namespace
 		namespace.removeAllListeners();
 		namespace.on("connect", this.onConnect.bind(this));
+		this.gameRooms.set(uuid, namespace);
 	}
 
 	public listen(server: any, opts?: ServerOptions): Server {
@@ -35,6 +44,7 @@ class SocketService {
 	}
 
 	private onConnect(socket: Socket) {
+		console.log("User joined");
 		socket.removeAllListeners(); // Prevents duplicates
 		socket.on("action", message => this.onAction(socket, message));
 	}
