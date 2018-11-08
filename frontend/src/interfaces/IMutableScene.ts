@@ -5,5 +5,5 @@ interface IMutableScene {
 
     showGoal(scoredBy: string): void;
 
-    updateCounts(scores: number[], multipliers: number[], goals: number[]): void;
+    updateCounts(score: number, multiplier: number, goals: number): void;
 }
