@@ -5,19 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Page Title</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <style type="text/css">
-        body {
-            text-align: center;
-            background-color: black;
-        }
-        label {
-            color: white;
-        }
-        canvas {
-            border: 2px solid white;
-        }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
 
     <script id="shader-vs" type="x-shader/x-vertex">
         // The Vertex Shader
@@ -48,11 +37,21 @@
     <script src="dist/bundle.js"></script>
 </head>
 <body>
-    <label for="nicknameTxt">Nickname:</label>
+    <!--<label for="nicknameTxt">Nickname:</label>
     <input id="nicknameTxt" type="text" />
     <button id="startButton">Start</button>
     <br><br>
-    <canvas id="canvas" width="1080" height="720"></canvas>
+    <div class="user-input">
+        <label for="nicknameTxt">Nickname:</label><br>
+        <input id="nicknameTxt" type="text" /><br>
+        <button id="startButton">Start</button>
+    </div>-->
+    <img id="logo" src="./img/pong-logo.svg" alt="pong-logo">
+    <div class="wrapper">
+        <div class="black-screen"></div>
+        <canvas id="canvas" width="1080" height="720"></canvas><br>
+        <button id="startButton">START</button>
+    </div>
     
 </body>
 </html>

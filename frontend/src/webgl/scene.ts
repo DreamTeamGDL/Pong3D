@@ -1,10 +1,10 @@
-import { GLScene, GLVector, Point4D, Triangle, Rectangle, AbstractPolygon, Square } from "smartgl";
+import { GLScene, GLVector, Point4D, Triangle, Rectangle, AbstractPolygon, Square, GLCamera } from "smartgl";
 import {mat4} from "gl-matrix";
 
 export default class Scene extends GLScene implements IMutableScene {
 	
-    private player1 = new Rectangle(this.gl, new Point4D(-0.5,0), 0.3);
-	private player2 = new Rectangle(this.gl, new Point4D(0.5,0), 0.3);
+    private player1 = new Rectangle(this.gl, new Point4D(-0.5, 0, 3), 0.3);
+	private player2 = new Rectangle(this.gl, new Point4D(0.5, 0,-4), 0.3);
 	
 	public constructor(canvasId: string, animate: boolean) {
 		super(canvasId, animate);
@@ -34,25 +34,27 @@ export default class Scene extends GLScene implements IMutableScene {
     private movePlayer(e: KeyboardEvent) {
         switch (e.key) {
             case "ArrowUp":
-                this.player1.translate(0, 0.05);
+                this.player1.translate(0, 0.2);
                 break;
             case "ArrowDown":
-                this.player1.translate(0, -0.05);
-                break;
+                this.player1.translate(0, -0.2);
+				break;
+			case "ArrowLeft":
+				this.player1.translate(-0.1, 0);
+				break;
+			case "ArrowRight":
+				this.player1.translate(0.1, 0);
             default:
                 break;
-        }
+		}
+		console.log("FUCK MIGUEL");
         this.nextFrame();
     }
 
 	private transform(): Float32Array {
-		const view = mat4.create();
-		mat4.lookAt(view, [0, 0, 2], [0, 0, 0], [0, 1, 0]);
-		const projection = mat4.create();
-		mat4.ortho(projection, -1, 1, -1, 1, 0.1, 1000);
-		const result = mat4.create();
-		mat4.multiply(result, projection, view);
-		return result;
+		const aspectRatio = this.canvas.height / this.canvas.width;
+		const camera = new GLCamera(5, aspectRatio);
+		return camera.observe();
 	}
 
 	private toClipping(point: Point4D, rect: ClientRect): Point4D {
