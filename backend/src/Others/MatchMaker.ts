@@ -1,8 +1,9 @@
 
 import {Queue} from "typescript-collections"
 import * as UUID from "uuid"
-import GameStats from "../Models/GameStats";
 import GameService from "../Services/GameService";
+import socketService from "../Services/SocketService";
+import {setInterval} from "timers";
 
 export default class MatchMaker {
 
@@ -21,16 +22,16 @@ export default class MatchMaker {
         this.gameService = new GameService();
     }
 
-    public requestGameId: () => Promise<string> = async() => {
-        let deferred = new DeferredPromise<string>();
+    public async requestGameId(username: string): Promise<string> {
+        let deferred = new DeferredPromise<string>(username);
         this.queue.enqueue(deferred);
         if (this.cycle == null) {
-            this.cycle = setInterval(this.matchCycle, this.frequency); //Enable spinlock
+            this.cycle = setInterval(this.matchCycle.bind(this), this.frequency); //Enable spinlock
         }
         return deferred.promise;
     }
 
-    private matchCycle = async () => {
+    private async matchCycle() {
         if (this.cycleCounter > this.maxTime * (1000 / this.frequency)) {
             let aloneDude = this.queue.dequeue()!;
             aloneDude.reject(new Error("No partner found"));
@@ -42,9 +43,10 @@ export default class MatchMaker {
             let first = this.queue.dequeue()!;
             let second = this.queue.dequeue()!;
             const firstPlayer = first.data as string;
-            const secondPlayer = first.data as string;
+            const secondPlayer = second.data as string;
             let uuid: string = UUID.v4();
             await this.gameService.createGame(uuid, firstPlayer, secondPlayer);
+			this.gameService.startGame(uuid);
             first.resolve(uuid);
             second.resolve(uuid);
             this.cycleCounter = 0;

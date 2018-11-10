@@ -6,4 +6,5 @@ export default interface Game {
     player1: GameStats;
     player2: GameStats;
     gameArea: GameArea;
+    connected: number
 }

@@ -24,5 +24,3 @@ let server: Http.Server = app.listen(port);
 socketService.listen(server);
 
 console.log(`Listening with <3 on port ${port}`);
-
-const x = new GameArea("x");

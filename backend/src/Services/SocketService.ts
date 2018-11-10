@@ -21,13 +21,16 @@ class SocketService {
 	public sendAction(uuid: string, action: Action) {
 		if (!this.gameRooms.has(uuid)) throw new Error("Game room does not exist");
 		const room = this.gameRooms.get(uuid)!;
-		room.emit(JSON.stringify(action));
+		room.emit("action", JSON.stringify(action));
 	}
 
-	public setupChatroom(uuid: string) {
+	public setupChatroom(uuid: string, onCreate: (socket: Socket) => void) { // TODO
 		let namespace = this.io.of(`/${uuid}`); // Creating chat namespace
 		namespace.removeAllListeners();
-		namespace.on("connect", this.onConnect.bind(this));
+		namespace.on("connect", socket => {
+			onCreate(socket);
+			this.onConnect(socket);
+		});
 		this.gameRooms.set(uuid, namespace);
 	}
 
@@ -51,7 +54,13 @@ class SocketService {
 
 	private onAction(socket: Socket, rawAction: string) {
 		console.log("Message: " + rawAction);
-		const action = JSON.parse(rawAction) as Action;
+		let action: Action | null = null;
+		try {
+			action = JSON.parse(rawAction) as Action;
+		} catch (e) {
+			console.log(`Could not parse json (Fuck Miguel): ${e}`);
+			return;
+		}
 		switch (action.type) {
 			case ActionType.NewPosition:
 				this.moveAction(action.values as Move);
