@@ -13,7 +13,14 @@ export default class SocketService {
         this.socket = connect(url);
         this.scene = scene;
 
-        this.socket.on("data", this.processMessage);
+        this.socket.on("action", (rawMessage: string) =>  {
+            try {
+                const action = JSON.parse(rawMessage) as Action;
+                this.processMessage(action);
+            } catch (e) {
+                console.error("Error in parsing JSON: " + e.message);
+            }
+        });
     }
 
     public sendMessage(message: Action){
@@ -69,7 +76,8 @@ export default class SocketService {
 
     private moveObjectMessage(data: Move){
         let position = [data.x, data.y, data.z];
-        if(this.scene != null){
+        console.log(position);
+        if (this.scene != null) {
             this.scene.moveObject(data.objectId, position);
         }
     }
