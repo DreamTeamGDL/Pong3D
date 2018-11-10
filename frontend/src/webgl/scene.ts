@@ -47,7 +47,6 @@ export default class Scene extends GLScene implements IMutableScene {
             default:
                 break;
 		}
-		console.log("FUCK MIGUEL");
         this.nextFrame();
     }
 
@@ -72,7 +71,7 @@ export default class Scene extends GLScene implements IMutableScene {
 	showGoal(scoredBy: string): void {
 		throw new Error("Method not implemented.");
 	}
-	updateCounts(scores: number[], multipliers: number[], goals: number[]): void {
+	updateCounts(scores: number, multipliers: number, goals: number): void {
 		throw new Error("Method not implemented.");
 	}
 }

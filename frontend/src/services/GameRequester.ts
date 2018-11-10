@@ -6,11 +6,11 @@ export default class GameRequester {
         request.addEventListener("readystatechange", (event) => {
             if(request.readyState == 4 && request.status == 200){
                 let response = JSON.parse(request.response);
-                let socket = new SocketService("http://192.168.1.65:3000/"+response.uuid, null);
-                setInterval(() => socket.sendBasicMessage("Hello"), 500);
+                let socket = new SocketService("http://192.168.1.74:3000/"+response.uuid, null);
+                //setInterval(() => socket.sendBasicMessage("Hello"), 500);
             }
         });
-        request.open("GET", "http://192.168.1.65:3000/"+username);
+        request.open("GET", "http://192.168.1.74:3000/"+username);
         request.send();
     }
 }

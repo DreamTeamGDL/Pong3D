@@ -1,5 +1,4 @@
 import GameRequester from "./services/GameRequester";
-import { GLScene } from "../node_modules/smartgl";
 import Scene from "./webgl/scene";
 
 document.addEventListener("DOMContentLoaded", () => {

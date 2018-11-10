@@ -1,11 +1,13 @@
 import { connect } from "socket.io-client";
-import IMessage from "../models/IMessage";
+import { ActionType, Move, UserEvent, Join, PlayerScores, Scores } from "../models/Action";
+import Action from "../models/Action";
 import MessageType from "../models/Enums";
 
 export default class SocketService {
     private socket: SocketIOClient.Socket;
     private scene: IMutableScene | null;
     private gameId: string = "";
+    private userId: string = "";
     
     constructor(url:string, scene: IMutableScene | null) {
         this.socket = connect(url);
@@ -14,51 +16,61 @@ export default class SocketService {
         this.socket.on("data", this.processMessage);
     }
 
-    public sendMessage(message: IMessage){
-        this.socket.emit("newPosition", message);
+    public sendMessage(message: Action){
+        this.socket.emit("action", message);
     }
 
     public sendBasicMessage(message: string){
         this.socket.emit("action", message);
     }
 
-    private processMessage(data: IMessage){
-        let messageId = data.messageId;
+    public sendJoinGame(message: Action){
+        this.socket.emit("action", message);
+    }
+
+    private processMessage(data: Action){
+        let messageId = data.type;
         switch (messageId) {
-            case MessageType.NewPosition:
-                this.moveObjectMessage(data);
+            case ActionType.NewPosition:
+                this.moveObjectMessage(data.values as Move);
                 break;
-            case MessageType.JoinGame:
-                this.gameRoomAssigned(data);
-                break;
-            case MessageType.Winner:
+            case ActionType.Winner:
                 if(this.scene != null){
-                    this.scene.showWinner(data.winnerUsername!);
+                    let winner = data.values as UserEvent;
+                    this.scene.showWinner(winner.userId);
                 }
                 break;
-            case MessageType.Goal:
+            case ActionType.JoinGame:
+                let message = data.values as Join;
+                this.userId = message.userId;
+            case ActionType.Goal:
                 if(this.scene != null){
-                    this.scene.showGoal(data.scoredBy!);
+                    let goal = data.values as UserEvent;
+                    this.scene.showGoal(goal.userId);
                 }
                 break;
-            case MessageType.UpdateScores:
-                if(this.scene != null){
-                    this.scene.updateCounts(data.currentScore!, data.currentMultipliers!, data.currentGoals!);
+            case ActionType.UpdateScores:
+                let scores = data.values as Scores;
+                let myUser = scores.players.find(player => player.userId === this.userId);
+                if(myUser != undefined){
+                    this.updateScores(myUser);
+                } else {
+                    console.error("SHIT HAPPENED (Fuck Chris).");
                 }
                 break;
         }
     }
 
-    private gameRoomAssigned(data: IMessage){
-        this.gameId = data.uuid!;
-        console.log("Redirecting");
+    private updateScores(player: PlayerScores){
+        if(this.scene != null){
+            this.scene.updateCounts(player.currentScore, player.currentMultipliers, player.currentGoals);
+        }
     }
 
-    private moveObjectMessage(data: IMessage){
-        let position = [data.x!, data.y!, data.z!];
-        console.log(position);
+    private moveObjectMessage(data: Move){
+        let position = [data.x, data.y, data.z];
         if(this.scene != null){
-            this.scene.moveObject(data.objectId!, position);
+            this.scene.moveObject(data.objectId, position);
         }
     }
 }
