@@ -3,6 +3,7 @@ import {Vector3} from "math3d";
 import GameObject from "./GameObject";
 import socketService from "../Services/SocketService";
 import {ActionType} from "./Action";
+import {clearInterval, setInterval} from "timers";
 
 export default class GameArea {
 
@@ -14,20 +15,33 @@ export default class GameArea {
 	private player1: IGameObject;
 	private player2: IGameObject;
 	private ball: IGameObject;
+	private timer: NodeJS.Timer | null = null;
+
 
 	public constructor(uuid: string) {
 		this.player1 = new GameObject("Player2", new Vector3(0, 0, -2));
 		this.player2 = new GameObject("Player2", new Vector3(0, 0, 2));
 		this.ball = new GameObject("ball", Vector3.zero, this.randomDirection(), 0.01);
 		this.roomId = uuid;
-		setInterval(this.ballMove.bind(this), 100);
+	}
+
+	public get Started() {
+		return this.timer != null;
+	}
+
+	public set Started(value: boolean) {
+		if (!this.Started) {
+			this.timer = setInterval(this.ballMove.bind(this), 100);
+		} else {
+			clearInterval(this.timer!);
+			this.timer = null;
+		}
 	}
 
 	private ballMove() {
 		this.ball.updatePosition();
 		this.bounce(this.ball.position);
-		console.log(this.ball.position.values);
-		/*socketService.sendAction(this.roomId, {
+		socketService.sendAction(this.roomId, {
 			type: ActionType.NewPosition,
 			values: {
 				objectId: this.ball.id,
@@ -35,7 +49,7 @@ export default class GameArea {
 				y: this.ball.position.y,
 				z: this.ball.position.z
 			}
-		});*/
+		});
 	}
 
 	private bounce(position: Vector3) {
@@ -46,8 +60,7 @@ export default class GameArea {
 	}
 
 	private outOfBounds(coord: number, bounds: [Number, Number]): boolean {
-		const isOut = (coord <= bounds[0] || coord >= bounds[1])
-		return isOut;
+		return (coord <= bounds[0] || coord >= bounds[1]);
 	}
 
 	private randomDirection(): Vector3 {
@@ -56,7 +69,7 @@ export default class GameArea {
 		const z = Math.random();
 		const randomVector = new Vector3(x, y, z);
 		console.log(randomVector.values);
-		return randomVector.mulScalar(1  / randomVector.magnitude)
+		return randomVector.mulScalar(1  / randomVector.magnitude);
 	}
 
 

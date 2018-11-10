@@ -1,6 +1,5 @@
 import {Router} from "express";
 import MatchMaker from "../Others/MatchMaker";
-import socketService from "../Services/SocketService"
 import UserRepository from "../Repositories/UserRepository";
 import GameService from "../Services/GameService";
 
@@ -13,8 +12,7 @@ matchMakingRouter.get("/:username", async (req, res) => {
     let username = req.params["username"];
     try {
         console.log("Request arrived");
-        let uuid: string = await matchmaker.requestGameId();
-        socketService.setupChatroom(uuid);
+        let uuid: string = await matchmaker.requestGameId(username);
         res.statusCode = 200;
         let json = {"uuid": uuid};
         res.end(JSON.stringify(json));
