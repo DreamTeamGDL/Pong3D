@@ -1,0 +1,65 @@
+body {
+    background-image: url("../img/bg.jpg");
+    background-size: cover;
+    text-align: center;
+    font-family: 'Press Start 2P', cursive;
+}
+label {
+    color: white;
+}
+#logo {
+    width: 200px;
+    margin: 20px;
+}
+.wrapper {
+    position: absolute;
+    width: 100%;
+    height: calc(100% - 125px);
+    top: 0;
+    left: 0;
+    text-align: center;
+    padding-top: 125px;
+}
+.black-screen {
+    width: 70%;
+    height: calc(720px * 0.85);
+    position: absolute;
+    left: 14.5%;
+    top: calc(720px * 0.2);
+    background: black;
+    border: 5px solid black;
+    transform: perspective(50px) rotateX(-1deg);
+    border-radius: 10px;
+    z-index: -1;
+}
+.wrapper canvas {
+    width: calc(1080px * 0.8);
+    height: calc(720px * 0.8);
+    border: 2px solid white;
+    z-index: 0;
+}
+.user-input {
+    position: absolute;
+    background: black;
+    padding: 20px;
+    width: 250px;
+    top: 50%;
+    left: calc(50% - 150px);
+    border: 1px solid magenta;
+    display: inline-block;
+    z-index: 2;
+    display: none;
+}
+.user-input input {
+    background: black;
+    border: 0;
+    border-bottom: 1px dotted white;
+    margin-top: 15px;
+    color: white;
+}
+.user-input button {
+    background: none;
+    color: white;
+    padding: 5px;
+    margin-top: 15px;
+}
