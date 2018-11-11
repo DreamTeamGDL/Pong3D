@@ -1,4 +1,5 @@
 import SocketService from "./SocketService";
+import Scene from "../webgl/scene";
 
 export default class GameRequester {
 
@@ -8,12 +9,13 @@ export default class GameRequester {
         return `${this.BaseUrl}:${this.Port}/`;
     }
 
-    public start(username: string){
+    public start(username: string, scene:Scene){
         let request = new XMLHttpRequest();
         request.addEventListener("readystatechange", (event) => {
             if(request.readyState == 4 && request.status == 200){
                 let response = JSON.parse(request.response);
-                let socket = new SocketService(GameRequester.Url + response.uuid, null);
+                let socket = new SocketService(GameRequester.Url + response.uuid, scene);
+                scene.socketService = socket;
                 //setInterval(() => socket.sendBasicMessage("Hello"), 500);
             }
         });

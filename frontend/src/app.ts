@@ -10,7 +10,7 @@ async function main(){
     scene.launch();
     let username = (document.getElementById("nicknameTxt") as HTMLInputElement).value;
     let requester = new GameRequester();
-    requester.start(username);
+    requester.start(username, scene);
 
     setTimeout(() => {
         console.log("Hello");
