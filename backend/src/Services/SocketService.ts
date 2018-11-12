@@ -1,12 +1,15 @@
 import * as SocketIO from "socket.io"
 import {Namespace, Server, ServerOptions, Socket} from "socket.io"
 import Action, {ActionType, Join, Move} from "../Models/Action";
+import GameService from "./GameService";
+import {Vector3} from "math3d";
 
 class SocketService {
 
 	public static socketService: SocketService = new SocketService();
 
 	private io: SocketIO.Server;
+	private gameService = GameService.Instance;
 
 	private gameRooms: Map<string, Namespace> = new Map();
 
@@ -18,19 +21,28 @@ class SocketService {
 		});
 	}
 
+	public privateAction(socketId: string, action: Action) {
+		this.io.to(socketId).send(JSON.stringify(action));
+	}
+
 	public sendAction(uuid: string, action: Action) {
 		if (!this.gameRooms.has(uuid)) throw new Error("Game room does not exist");
 		const room = this.gameRooms.get(uuid)!;
 		room.emit("action", JSON.stringify(action));
 	}
 
-	public setupChatroom(uuid: string, onCreate: (socket: Socket) => void) { // TODO
+	public setupChatroom(uuid: string, onCreate: (socket: Socket) => string) { // TODO
 		let namespace = this.io.of(`/${uuid}`); // Creating chat namespace
 		namespace.removeAllListeners();
 		namespace.on("connect", socket => {
-			onCreate(socket);
+			const player = onCreate(socket);
+            this.privateAction(socket.id, {
+                type: ActionType.JoinGame,
+                values: {userId: name}
+            });
 			this.onConnect(socket);
 		});
+
 		this.gameRooms.set(uuid, namespace);
 	}
 
@@ -53,6 +65,7 @@ class SocketService {
 	}
 
 	private onAction(socket: Socket, rawAction: string) {
+		const gameId = socket.nsp.name;
 		console.log("Message: " + rawAction);
 		let action: Action | null = null;
 		try {
@@ -63,7 +76,7 @@ class SocketService {
 		}
 		switch (action.type) {
 			case ActionType.NewPosition:
-				this.moveAction(action.values as Move);
+				this.moveAction(gameId, action.values as Move);
 				break;
 			case ActionType.JoinGame:
 				this.joinAction(action.values as Join);
@@ -80,8 +93,8 @@ class SocketService {
 		socket.emit(rawAction);
 	}
 
-	private moveAction(movement: Move) {
-
+	private moveAction(gameId: string, movement: Move) {
+		this.gameService.moveObject(gameId, movement.objectId, new Vector3(movement.x, movement.y, movement.z));
 	}
 
 	private joinAction(joining: Join) {

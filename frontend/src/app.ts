@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     (document.getElementById("startButton") as HTMLButtonElement).addEventListener("click", () => main());
 });
 
-async function main(){
+function main(){
     const scene = new Scene("canvas", false);
     scene.launch();
     let username = (document.getElementById("nicknameTxt") as HTMLInputElement).value;
