@@ -3,7 +3,8 @@ enum MessageType {
     NewPosition,
     Goal,
     Winner,
-    UpdateScores
+    UpdateScores,
+    Collision
 }
 
 export default MessageType;

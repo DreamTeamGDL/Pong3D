@@ -3,7 +3,8 @@ export enum ActionType {
 	NewPosition,
 	Goal,
 	Winner,
-	UpdateScores
+	UpdateScores,
+    Collision
 }
 
 export default interface Action {

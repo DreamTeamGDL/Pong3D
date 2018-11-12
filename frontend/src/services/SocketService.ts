@@ -18,6 +18,7 @@ export default class SocketService {
                 const action = JSON.parse(rawMessage) as Action;
                 this.processMessage(action);
             } catch (e) {
+                console.error(`Message: ${rawMessage}`);
                 console.error("Error in parsing JSON: " + e.message);
             }
         });
@@ -33,6 +34,19 @@ export default class SocketService {
 
     public sendJoinGame(message: Action){
         this.socket.emit("action", message);
+    }
+
+    public sendMoveObject(x: number, y: number){
+        let action: Action = { 
+            type: ActionType.NewPosition, 
+            values: {
+                objectId: this.userId,
+                x: x,
+                y: y,
+                z: 0
+            }
+        };
+        this.socket.emit("emit", action);
     }
 
     private processMessage(data: Action){
@@ -76,7 +90,6 @@ export default class SocketService {
 
     private moveObjectMessage(data: Move){
         let position = [data.x, data.y, data.z];
-        console.log(position);
         if (this.scene != null) {
             this.scene.moveObject(data.objectId, position);
         }
