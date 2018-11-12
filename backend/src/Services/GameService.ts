@@ -3,14 +3,15 @@ import GameStats from "../Models/GameStats";
 import GameRepository from "../Repositories/GameRepository";
 import GameArea from "../Models/GameArea";
 import socketService from "./SocketService";
-import {ActionType} from "../Models/Action";
+import {Vector3} from "math3d";
 
-export default class GameService {
+class GameService {
 
+	public static instance: GameService = new GameService();
 	private gameRepository: GameRepository;
 	private games: Game[] = [];
 
-	public constructor() {
+	private constructor() {
 		this.gameRepository = new GameRepository();
 	}
 
@@ -25,11 +26,8 @@ export default class GameService {
 		socketService.setupChatroom(gameId, () => {
 			const game = this.games.find(game => game.id == gameId)!;
 			const name = game.connected == 0 ?  "Player1" : "Player2";
-			socketService.sendAction(gameId, {
-				type: ActionType.JoinGame,
-				values: {userId: name}
-			});
 			game.connected++;
+			return name;
 		});
 		return Promise.resolve();
 		//await this.gameRepository.createGame(game);
@@ -40,6 +38,11 @@ export default class GameService {
 		if (result.length != 1) throw new Error("Game is not unique");
 		const gameArea = result[0].gameArea;
 		if (!gameArea.Started) gameArea.Started = true;
+	}
+
+	public moveObject(gameId: string, objectId: string, position: Vector3) {
+		const game = this.games.find(g => g.id == gameId)!;
+		game.gameArea.moveObject(objectId, position);
 	}
 
 	public async scoreGoal(gameId: string, player: string) {
@@ -63,5 +66,6 @@ export default class GameService {
 		}
 	}
 
-
 }
+
+export default GameService.instance;

@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     (document.getElementById("startButton") as HTMLButtonElement).addEventListener("click", () => main());
 });
 
-async function main(){
+function main(){
     const scene = new Scene("canvas", false);
     scene.launch();
 
@@ -15,7 +15,7 @@ async function main(){
     let username = (document.getElementById("username") as HTMLInputElement).value;
     let requester = new GameRequester();
     
-    requester.start(username);
+    requester.start(username, scene);
     inputBox.style.display = "none";
     scoreBoard.style.display = "block";
 }

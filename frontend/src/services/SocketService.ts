@@ -11,6 +11,9 @@ export default class SocketService {
     
     constructor(url:string, scene: IMutableScene | null) {
         this.socket = connect(url);
+        this.socket.on("connect", (socket: SocketIOClient.Socket) => {
+           console.log(this.socket.id) ;
+        });
         this.scene = scene;
 
         this.socket.on("action", (rawMessage: string) =>  {
@@ -18,6 +21,7 @@ export default class SocketService {
                 const action = JSON.parse(rawMessage) as Action;
                 this.processMessage(action);
             } catch (e) {
+                console.error(`Message: ${rawMessage}`);
                 console.error("Error in parsing JSON: " + e.message);
             }
         });
@@ -35,6 +39,20 @@ export default class SocketService {
         this.socket.emit("action", message);
     }
 
+    public sendMoveObject(x: number, y: number){
+        console.log(this.userId);
+        let action: Action = { 
+            type: ActionType.NewPosition, 
+            values: {
+                objectId: this.userId,
+                x: x,
+                y: y,
+                z: 0
+            }
+        };
+        this.socket.emit("action", JSON.stringify(action));
+    }
+
     private processMessage(data: Action){
         let messageId = data.type;
         switch (messageId) {
@@ -49,7 +67,11 @@ export default class SocketService {
                 break;
             case ActionType.JoinGame:
                 let message = data.values as Join;
-                this.userId = message.userId;
+                if (message.socketId === this.socket.id) {
+                    console.log(message);
+                    this.userId = message.userId;
+                    console.log(this.userId);
+                }
             case ActionType.Goal:
                 if(this.scene != null){
                     let goal = data.values as UserEvent;
@@ -76,7 +98,6 @@ export default class SocketService {
 
     private moveObjectMessage(data: Move){
         let position = [data.x, data.y, data.z];
-        console.log(position);
         if (this.scene != null) {
             this.scene.moveObject(data.objectId, position);
         }

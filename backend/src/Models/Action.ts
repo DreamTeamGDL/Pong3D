@@ -4,7 +4,8 @@ export enum ActionType {
 	NewPosition,
 	Goal,
 	Winner,
-	UpdateScores
+	UpdateScores,
+	Collision
 }
 
 export default interface Action {
@@ -14,6 +15,7 @@ export default interface Action {
 
 export interface Join {
 	userId: string;
+	socketId: string;
 }
 
 export interface Move {

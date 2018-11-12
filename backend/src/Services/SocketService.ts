@@ -1,6 +1,8 @@
 import * as SocketIO from "socket.io"
 import {Namespace, Server, ServerOptions, Socket} from "socket.io"
 import Action, {ActionType, Join, Move} from "../Models/Action";
+import gameService from "./GameService";
+import {Vector3} from "math3d";
 
 class SocketService {
 
@@ -18,19 +20,33 @@ class SocketService {
 		});
 	}
 
+	public privateAction(socketId: string, action: Action) {
+		console.log(socketId);
+		console.log(action);
+		this.io.emit("action", JSON.stringify(action));
+	}
+
 	public sendAction(uuid: string, action: Action) {
 		if (!this.gameRooms.has(uuid)) throw new Error("Game room does not exist");
 		const room = this.gameRooms.get(uuid)!;
 		room.emit("action", JSON.stringify(action));
 	}
 
-	public setupChatroom(uuid: string, onCreate: (socket: Socket) => void) { // TODO
+	public setupChatroom(uuid: string, onCreate: (socket: Socket) => string) { // TODO
 		let namespace = this.io.of(`/${uuid}`); // Creating chat namespace
 		namespace.removeAllListeners();
 		namespace.on("connect", socket => {
-			onCreate(socket);
+			const player = onCreate(socket);
+            this.sendAction(uuid, {
+                type: ActionType.JoinGame,
+                values: {
+                	userId: player,
+					socketId: socket.id
+                }
+            });
 			this.onConnect(socket);
 		});
+
 		this.gameRooms.set(uuid, namespace);
 	}
 
@@ -53,7 +69,7 @@ class SocketService {
 	}
 
 	private onAction(socket: Socket, rawAction: string) {
-		console.log("Message: " + rawAction);
+		const gameId = socket.nsp.name.substr(1);
 		let action: Action | null = null;
 		try {
 			action = JSON.parse(rawAction) as Action;
@@ -63,7 +79,7 @@ class SocketService {
 		}
 		switch (action.type) {
 			case ActionType.NewPosition:
-				this.moveAction(action.values as Move);
+				this.moveAction(gameId, action.values as Move);
 				break;
 			case ActionType.JoinGame:
 				this.joinAction(action.values as Join);
@@ -80,8 +96,8 @@ class SocketService {
 		socket.emit(rawAction);
 	}
 
-	private moveAction(movement: Move) {
-
+	private moveAction(gameId: string, movement: Move) {
+		gameService.moveObject(gameId, movement.objectId, new Vector3(movement.x, movement.y, movement.z));
 	}
 
 	private joinAction(joining: Join) {
