@@ -1,7 +1,5 @@
-import { connect } from "socket.io-client";
-import { ActionType, Move, UserEvent, Join, PlayerScores, Scores } from "../models/Action";
-import Action from "../models/Action";
-import MessageType from "../models/Enums";
+import {connect} from "socket.io-client";
+import Action, {ActionType, Join, Move, PlayerScores, Scores, UserEvent} from "../models/Action";
 
 export default class SocketService {
     private socket: SocketIOClient.Socket;
@@ -24,6 +22,13 @@ export default class SocketService {
                 console.error(`Message: ${rawMessage}`);
                 console.error("Error in parsing JSON: " + e.message);
             }
+        });
+        const gods = document.getElementById("godsAudio")! as HTMLAudioElement;
+        gods.volume = 0.04;
+        gods.play();
+        gods.addEventListener("ended", () => {
+            gods.currentTime = 0;
+            gods.play();
         });
     }
 
@@ -75,7 +80,13 @@ export default class SocketService {
                         this.scene.setCameraOrien(this.userId == "Player1");
                     }
                 }
+                break;
             case ActionType.Goal:
+                console.log("Goal");
+                const goal = document.getElementById("goalAudio")! as HTMLAudioElement;
+                goal.currentTime = 0;
+                goal.play();
+                setTimeout(() => goal.pause(), 4999);
                 if(this.scene != null){
                     let goal = data.values as UserEvent;
                     this.scene.showGoal(goal.userId);
@@ -89,6 +100,11 @@ export default class SocketService {
                 } else {
                     console.error("SHIT HAPPENED (Fuck Chris).");
                 }
+                break;
+            case ActionType.Collision:
+                console.log("Collision");
+                const pong = document.getElementById("pongAudio")! as HTMLAudioElement;
+                pong.play();
                 break;
         }
     }

@@ -94,7 +94,7 @@ export default class GameArea {
 
 	private detectCollision() {
 		const pos = this.ball.position;
-		const threshold = 0.05;
+		const threshold = 0.05 / 3;
 		const dz = 2 - Math.abs(pos.z);
 		if (dz < threshold) {
 			pos.z > 0 ? this.collide(this.player1) : this.collide(this.player2);
@@ -104,8 +104,18 @@ export default class GameArea {
 	private collide(goalie: GameObject) {
 		const isCollision = this.isInside(goalie.position, this.ball.position);
 		if (!isCollision) {
+			console.log("Goal");
 			gameService.scoreGoal(this.roomId, this.oppositePlayer(goalie.id));
 			this.Started = false;
+			socketService.sendAction(this.roomId, {
+				type: ActionType.Goal,
+				values: {}
+			});
+		} else {
+			socketService.sendAction(this.roomId, {
+				type: ActionType.Collision,
+				values: {}
+			});
 		}
     }
 

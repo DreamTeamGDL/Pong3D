@@ -131,6 +131,7 @@ export default class Scene extends GLScene implements IMutableScene {
     }
     
     private movePlayer(e: KeyboardEvent) {
+        const direction = this.cameraZ == 5 ? 1 : -1;
         switch (e.key) {
 			case "ArrowUp":
 				this.sendMove(0, 0.2);
@@ -141,11 +142,11 @@ export default class Scene extends GLScene implements IMutableScene {
                 // this.player1.translate(0, -0.2);
 				break;
 			case "ArrowLeft":
-				this.sendMove(-0.1, 0);
+				this.sendMove(-0.1 * direction, 0);
 				// this.player1.translate(-0.1, 0);
 				break;
 			case "ArrowRight":
-				this.sendMove(0.1, 0);
+				this.sendMove(0.1 * direction, 0);
 				// this.player1.translate(0.1, 0);
             default:
                 break;

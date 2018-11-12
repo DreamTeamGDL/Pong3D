@@ -10,7 +10,7 @@ export enum ActionType {
 
 export default interface Action {
 	type: ActionType;
-	values: Join | Move | Scores;
+	values: Join | Move | Scores | {};
 }
 
 export interface Scores {
