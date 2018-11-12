@@ -19,8 +19,8 @@ export default class GameArea {
 
 
 	public constructor(uuid: string) {
-		this.player1 = new GameObject("Player1", new Vector3(0, 0, -2));
-		this.player2 = new GameObject("Player2", new Vector3(0, 0, 2));
+		this.player1 = new GameObject("Player1", new Vector3(0, 0, 2));
+		this.player2 = new GameObject("Player2", new Vector3(0, 0, -2));
 		this.ball = new GameObject("ball", Vector3.zero, this.randomDirection(), 0.10);
 		this.roomId = uuid;
 	}
@@ -96,7 +96,6 @@ export default class GameArea {
 		const y = Math.random();
 		const z = Math.random();
 		const randomVector = new Vector3(x, y, z);
-		console.log(randomVector.values);
 		return randomVector.mulScalar(1  / randomVector.magnitude);
 	}
 

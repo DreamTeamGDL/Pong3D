@@ -15,6 +15,7 @@ export default interface Action {
 
 export interface Join {
 	userId: string;
+	socketId: string;
 }
 
 export interface Move {

@@ -11,6 +11,9 @@ export default class SocketService {
     
     constructor(url:string, scene: IMutableScene | null) {
         this.socket = connect(url);
+        this.socket.on("connect", (socket: SocketIOClient.Socket) => {
+           console.log(this.socket.id) ;
+        });
         this.scene = scene;
 
         this.socket.on("action", (rawMessage: string) =>  {
@@ -37,6 +40,7 @@ export default class SocketService {
     }
 
     public sendMoveObject(x: number, y: number){
+        console.log(this.userId);
         let action: Action = { 
             type: ActionType.NewPosition, 
             values: {
@@ -46,7 +50,7 @@ export default class SocketService {
                 z: 0
             }
         };
-        this.socket.emit("emit", action);
+        this.socket.emit("action", JSON.stringify(action));
     }
 
     private processMessage(data: Action){
@@ -63,7 +67,11 @@ export default class SocketService {
                 break;
             case ActionType.JoinGame:
                 let message = data.values as Join;
-                this.userId = message.userId;
+                if (message.socketId === this.socket.id) {
+                    console.log(message);
+                    this.userId = message.userId;
+                    console.log(this.userId);
+                }
             case ActionType.Goal:
                 if(this.scene != null){
                     let goal = data.values as UserEvent;

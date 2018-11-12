@@ -1,12 +1,11 @@
 import {Router} from "express";
 import MatchMaker from "../Others/MatchMaker";
 import UserRepository from "../Repositories/UserRepository";
-import GameService from "../Services/GameService";
+import gameService from "../Services/GameService";
 
 const matchMakingRouter = Router();
 const matchmaker = new MatchMaker(60, 250);
 const userRepository = new UserRepository();
-const gameService = GameService.Instance;
 
 matchMakingRouter.get("/:username", async (req, res) => {
     let username = req.params["username"];

@@ -1,7 +1,7 @@
 import * as SocketIO from "socket.io"
 import {Namespace, Server, ServerOptions, Socket} from "socket.io"
 import Action, {ActionType, Join, Move} from "../Models/Action";
-import GameService from "./GameService";
+import gameService from "./GameService";
 import {Vector3} from "math3d";
 
 class SocketService {
@@ -9,7 +9,6 @@ class SocketService {
 	public static socketService: SocketService = new SocketService();
 
 	private io: SocketIO.Server;
-	private gameService = GameService.Instance;
 
 	private gameRooms: Map<string, Namespace> = new Map();
 
@@ -22,7 +21,9 @@ class SocketService {
 	}
 
 	public privateAction(socketId: string, action: Action) {
-		this.io.to(socketId).send(JSON.stringify(action));
+		console.log(socketId);
+		console.log(action);
+		this.io.emit("action", JSON.stringify(action));
 	}
 
 	public sendAction(uuid: string, action: Action) {
@@ -36,9 +37,12 @@ class SocketService {
 		namespace.removeAllListeners();
 		namespace.on("connect", socket => {
 			const player = onCreate(socket);
-            this.privateAction(socket.id, {
+            this.sendAction(uuid, {
                 type: ActionType.JoinGame,
-                values: {userId: name}
+                values: {
+                	userId: player,
+					socketId: socket.id
+                }
             });
 			this.onConnect(socket);
 		});
@@ -65,8 +69,7 @@ class SocketService {
 	}
 
 	private onAction(socket: Socket, rawAction: string) {
-		const gameId = socket.nsp.name;
-		console.log("Message: " + rawAction);
+		const gameId = socket.nsp.name.substr(1);
 		let action: Action | null = null;
 		try {
 			action = JSON.parse(rawAction) as Action;
@@ -94,7 +97,7 @@ class SocketService {
 	}
 
 	private moveAction(gameId: string, movement: Move) {
-		this.gameService.moveObject(gameId, movement.objectId, new Vector3(movement.x, movement.y, movement.z));
+		gameService.moveObject(gameId, movement.objectId, new Vector3(movement.x, movement.y, movement.z));
 	}
 
 	private joinAction(joining: Join) {

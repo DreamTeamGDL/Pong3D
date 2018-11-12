@@ -1,7 +1,7 @@
 
 import {Queue} from "typescript-collections"
 import * as UUID from "uuid"
-import GameService from "../Services/GameService";
+import gameService from "../Services/GameService";
 import socketService from "../Services/SocketService";
 import {setInterval} from "timers";
 
@@ -12,14 +12,12 @@ export default class MatchMaker {
     private cycleCounter: number;
     private maxTime: number;
     private frequency: number;
-    private gameService: GameService;
 
     public constructor(maxTime: number, frequency: number) {
         this.queue = new Queue();
         this.cycleCounter = 0;
         this.maxTime = maxTime;
         this.frequency = frequency;
-        this.gameService = new GameService();
     }
 
     public async requestGameId(username: string): Promise<string> {
@@ -45,8 +43,8 @@ export default class MatchMaker {
             const firstPlayer = first.data as string;
             const secondPlayer = second.data as string;
             let uuid: string = UUID.v4();
-            await this.gameService.createGame(uuid, firstPlayer, secondPlayer);
-			this.gameService.startGame(uuid);
+            await gameService.createGame(uuid, firstPlayer, secondPlayer);
+			gameService.startGame(uuid);
             first.resolve(uuid);
             second.resolve(uuid);
             this.cycleCounter = 0;

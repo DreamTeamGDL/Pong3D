@@ -3,21 +3,13 @@ import GameStats from "../Models/GameStats";
 import GameRepository from "../Repositories/GameRepository";
 import GameArea from "../Models/GameArea";
 import socketService from "./SocketService";
-import {ActionType} from "../Models/Action";
 import {Vector3} from "math3d";
 
-export default class GameService {
+class GameService {
 
-	private static instance: GameService | null = null;
+	public static instance: GameService = new GameService();
 	private gameRepository: GameRepository;
 	private games: Game[] = [];
-
-	public static get Instance(): GameService {
-		if (GameService.instance == null) {
-			GameService.instance = new GameService();
-		}
-		return GameService.instance;
-	}
 
 	private constructor() {
 		this.gameRepository = new GameRepository();
@@ -74,5 +66,6 @@ export default class GameService {
 		}
 	}
 
-
 }
+
+export default GameService.instance;
