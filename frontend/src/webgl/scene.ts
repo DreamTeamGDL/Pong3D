@@ -4,13 +4,15 @@ import SocketService from "../services/SocketService";
 export default class Scene extends GLScene implements IMutableScene {
 
 	public socketService: SocketService | null = null;
-    private player1 = new Rectangle(this.gl, new Point4D(0,0,0), 0.1);
-	private player2 = new Rectangle(this.gl, new Point4D(0,0,0), 0.1);
+    private player1 = new Rectangle(this.gl, new Point4D(0,0,2), 0.1);
+	private player2 = new Rectangle(this.gl, new Point4D(0,0,-2), 0.1);
 	private ball = new Rectangle(this.gl, new Point4D(0,0,0), 0.1);
 	private drawablesWire: IDrawable[] = [];
 
 	private static readonly PINK_PONG = new Point4D(255/255, 13/255, 214/255, 1);
 	private static readonly BLUE_PONG = new Point4D(18/255, 154/255, 255/255, 1);
+
+	private cameraZ: number = 5;
 
 	private gameObjects: Map<string, IDrawable> = new Map();
 	
@@ -52,7 +54,7 @@ export default class Scene extends GLScene implements IMutableScene {
 		let p12 = new Point4D(0.2, 0.2, 2);
 		let p13 = new Point4D(-0.2, -0.2, 2);
 		let p14 = new Point4D(0.2, -0.2, 2);
-		let p1Vertices = []
+		let p1Vertices = [];
 		p1Vertices.push(p11, p12, p14, p13);
 		this.player1.setPoints(p1Vertices);
 
@@ -61,7 +63,7 @@ export default class Scene extends GLScene implements IMutableScene {
 		let p22 = new Point4D(0.2, 0.2, -2);
 		let p23 = new Point4D(-0.2, -0.2, -2);
 		let p24 = new Point4D(0.2, -0.2, -2);
-		let p2Vertices = []
+		let p2Vertices = [];
 		p2Vertices.push(p21, p22, p24, p23);
 		this.player2.setPoints(p2Vertices);
 
@@ -70,9 +72,10 @@ export default class Scene extends GLScene implements IMutableScene {
 		let b2 = new Point4D(0.1, 0.2, 0);
 		let b3 = new Point4D(-0.1, -0.2, 0);
 		let b4 = new Point4D(0.1, -0.2, 0);
-		let bVertices = []
+		let bVertices = [];
 		bVertices.push(b1, b2, b4, b3);
 		this.ball.setPoints(bVertices);
+		this.nextFrame();
 	}
 
 	private setBoxWireframes(): Rectangle[] {
@@ -158,7 +161,7 @@ export default class Scene extends GLScene implements IMutableScene {
 
 	private transform(): Float32Array {
 		const aspectRatio = this.canvas.height / this.canvas.width;
-		const camera = new GLCamera(5, aspectRatio);
+		const camera = new GLCamera(this.cameraZ, aspectRatio);
 		return camera.observe();
 	}
 
@@ -173,7 +176,14 @@ export default class Scene extends GLScene implements IMutableScene {
 			this.renderingMode = this.gl.LINE_LOOP;
 			this.draw(mesh.vectors, mesh.count);
 		}
-		for (let drawable of this.drawables) {
+
+		let gameObjects: IDrawable[];
+		if (this.cameraZ == 5) {
+			gameObjects = this.drawables;
+		} else {
+			gameObjects = this.drawables.reverse();
+		}
+		for (let drawable of gameObjects) {
 			this.renderingMode = this.gl.TRIANGLES;
 			this.draw(drawable.vectors, drawable.count);
 		}
@@ -183,7 +193,7 @@ export default class Scene extends GLScene implements IMutableScene {
 		const obj = this.gameObjects.has(id) ? this.gameObjects.get(id)! : null;
 		if (obj == null) throw new Error(`Gameobj not found: ${id}`);
 		const [x, y, z] = position;
-		obj.translate(x, y, z, false);
+		obj.translate(x, y, z, true);
 		this.nextFrame();
 	}
 	showWinner(winnerUsername: string): void {
@@ -195,4 +205,7 @@ export default class Scene extends GLScene implements IMutableScene {
 	updateCounts(scores: number, multipliers: number, goals: number): void {
 		throw new Error("Method not implemented.");
 	}
+	setCameraOrien(fromFront: boolean) {
+        this.cameraZ = fromFront ? 5 : -5;
+    }
 }

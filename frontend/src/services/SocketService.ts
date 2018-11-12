@@ -70,7 +70,10 @@ export default class SocketService {
                 if (message.socketId === this.socket.id) {
                     console.log(message);
                     this.userId = message.userId;
-                    console.log(this.userId);
+                    if (this.scene != null) {
+                        console.log(this.userId);
+                        this.scene.setCameraOrien(this.userId == "Player1");
+                    }
                 }
             case ActionType.Goal:
                 if(this.scene != null){

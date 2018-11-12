@@ -95,7 +95,7 @@ export default class GameArea {
 	private detectCollision() {
 		const pos = this.ball.position;
 		const threshold = 0.05;
-		const dz = Math.abs(2 - pos.z);
+		const dz = 2 - Math.abs(pos.z);
 		if (dz < threshold) {
 			pos.z > 0 ? this.collide(this.player1) : this.collide(this.player2);
 		}
@@ -112,8 +112,6 @@ export default class GameArea {
     public isInside(goalie: Vector3, ball: Vector3): boolean {
         const outX = this.outOfBounds(ball.x, [goalie.x - this.goalieWidth / 2, goalie.x + this.goalieWidth / 2]);
         const outY = this.outOfBounds(ball.y, [goalie.y - this.goalieHeight / 2, goalie.y + this.goalieHeight / 2]);
-        console.log(`Out in X: ${outX}`);
-        console.log(`Out in Y: ${outY}`);
         return !outX && !outY;
     }
 
