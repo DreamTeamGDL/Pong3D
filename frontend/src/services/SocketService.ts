@@ -36,6 +36,19 @@ export default class SocketService {
         this.socket.emit("action", message);
     }
 
+    public sendMoveObject(x: number, y: number){
+        let action: Action = { 
+            type: ActionType.NewPosition, 
+            values: {
+                objectId: this.userId,
+                x: x,
+                y: y,
+                z: 0
+            }
+        };
+        this.socket.emit("emit", action);
+    }
+
     private processMessage(data: Action){
         let messageId = data.type;
         switch (messageId) {

@@ -1,8 +1,10 @@
 import { GLScene, GLVector, Point4D, Triangle, Rectangle, AbstractPolygon, Square, IDrawable, GLCamera } from "smartgl";
 import {mat4} from "gl-matrix";
+import SocketService from "../services/SocketService";
 
 export default class Scene extends GLScene implements IMutableScene {
-	
+
+	public socketService: SocketService | null = null;
     private player1 = new Rectangle(this.gl, new Point4D(-0.5, 0, 2), 0.3);
 	private player2 = new Rectangle(this.gl, new Point4D(0.5, 0,-2), 0.3);
 	private ball = new Rectangle(this.gl, new Point4D(0, 0, 0), 0.3);
@@ -52,22 +54,32 @@ export default class Scene extends GLScene implements IMutableScene {
     
     private movePlayer(e: KeyboardEvent) {
         switch (e.key) {
-            case "ArrowUp":
-                this.player1.translate(0, 0.2);
+			case "ArrowUp":
+				this.sendMove(0, 0.2);
+                //this.player1.translate(0, 0.2);
                 break;
-            case "ArrowDown":
-                this.player1.translate(0, -0.2);
+			case "ArrowDown":
+				this.sendMove(0, -0.2);
+                //this.player1.translate(0, -0.2);
 				break;
 			case "ArrowLeft":
-				this.player1.translate(-0.1, 0);
+				this.sendMove(-0.1, 0);
+				//this.player1.translate(-0.1, 0);
 				break;
 			case "ArrowRight":
-				this.player1.translate(0.1, 0);
+				this.sendMove(0.1, 0);
+				//this.player1.translate(0.1, 0);
             default:
                 break;
 		}
         this.nextFrame();
-    }
+	}
+	
+	private sendMove(x: number, y: number){
+		if(this.socketService == null)
+			return;
+		this.socketService.sendMoveObject(x, y);
+	}
 
 	private transform(): Float32Array {
 		const aspectRatio = this.canvas.height / this.canvas.width;
