@@ -4,6 +4,7 @@ import GameRepository from "../Repositories/GameRepository";
 import GameArea from "../Models/GameArea";
 import socketService from "./SocketService";
 import {Vector3} from "math3d";
+import {ActionType} from "../Models/Action";
 
 class GameService {
 
@@ -46,10 +47,34 @@ class GameService {
 	}
 
 	public async scoreGoal(gameId: string, player: string) {
-		const game = await this.gameRepository.getGame(gameId);
-		if (game.player1.username == player) game.player1 = this.increaseGoals(game.player1);
-		else game.player2 = this.increaseGoals(game.player2);
-		await this.gameRepository.updateGame(game);
+		//const game = await this.gameRepository.getGame(gameId);
+		const game = this.games.find(g => g.id == gameId)!;
+		if (game.player1.username == player) {
+            game.player1 = this.increaseGoals(game.player1);
+            game.player1.multiplier += Math.floor(game.player2.multiplier / 2);
+            game.player2.multiplier -= Math.ceil(game.player2.multiplier / 2);
+		} else {
+            game.player2 = this.increaseGoals(game.player2);
+            game.player2.multiplier += Math.floor(game.player1.multiplier / 2);
+            game.player1.multiplier -= Math.ceil(game.player1.multiplier / 2);
+		}
+		socketService.sendAction(gameId, {
+			type: ActionType.Goal,
+			values: {
+				players: [{
+                    userId: "Player1",
+                    currentGoals: game.player1.goals,
+                    currentMultipliers: game.player1.multiplier,
+                    currentScore: game.player1.score
+                }, {
+                    userId: "Player2",
+                    currentGoals: game.player2.goals,
+                    currentMultipliers: game.player2.multiplier,
+                    currentScore: game.player2.score
+				}]
+			}
+		});
+		//await this.gameRepository.updateGame(game);
 	}
 
 	private increaseGoals(stats: GameStats): GameStats {
@@ -62,6 +87,7 @@ class GameService {
 		return {
 			username: player,
 			score: 0,
+			multiplier: 1,
 			goals: 0
 		}
 	}
