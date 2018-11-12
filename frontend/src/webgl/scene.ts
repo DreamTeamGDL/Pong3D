@@ -13,6 +13,16 @@ export default class Scene extends GLScene implements IMutableScene {
 	private static readonly BLUE_PONG = new Point4D(18/255, 154/255, 255/255, 1);
 
 	private gameObjects: Map<string, IDrawable> = new Map();
+
+	private player1Username: HTMLSpanElement | null;
+	private player1Score: HTMLSpanElement | null;
+	private player1Bonus: HTMLSpanElement | null;
+	private player1Goals: HTMLSpanElement | null;
+
+	private player2Username: HTMLSpanElement | null;
+	private player2Score: HTMLSpanElement | null;
+	private player2Bonus: HTMLSpanElement | null;
+	private player2Goals: HTMLSpanElement | null;
 	
 	public constructor(canvasId: string, animate: boolean) {
 		super(canvasId, animate);
@@ -20,6 +30,16 @@ export default class Scene extends GLScene implements IMutableScene {
 		this.player2.setColor(Scene.BLUE_PONG);
 		this.ball.setColor(Point4D.Green);
 		this.onInit();
+
+		this.player1Username = document.getElementById("player1Username") as HTMLSpanElement;
+		this.player1Score = document.getElementById("player1Score") as HTMLSpanElement;
+		this.player1Bonus = document.getElementById("player1Bonus") as HTMLSpanElement;
+		this.player1Goals = document.getElementById("player1Goals") as HTMLSpanElement;
+
+		this.player2Username = document.getElementById("player2Username") as HTMLSpanElement;
+		this.player2Score = document.getElementById("player2Score") as HTMLSpanElement;
+		this.player2Bonus = document.getElementById("player2Bonus") as HTMLSpanElement;
+		this.player2Goals = document.getElementById("player2Goals") as HTMLSpanElement;
 	}
 
 	protected onInit() {
@@ -63,19 +83,15 @@ export default class Scene extends GLScene implements IMutableScene {
         switch (e.key) {
 			case "ArrowUp":
 				this.sendMove(0, 0.2);
-                //this.player1.translate(0, 0.2);
                 break;
 			case "ArrowDown":
 				this.sendMove(0, -0.2);
-                //this.player1.translate(0, -0.2);
 				break;
 			case "ArrowLeft":
 				this.sendMove(-0.1, 0);
-				//this.player1.translate(-0.1, 0);
 				break;
 			case "ArrowRight":
 				this.sendMove(0.1, 0);
-				//this.player1.translate(0.1, 0);
             default:
                 break;
 		}
@@ -104,16 +120,35 @@ export default class Scene extends GLScene implements IMutableScene {
 		const obj = this.gameObjects.has(id) ? this.gameObjects.get(id)! : null;
 		if (obj == null) throw new Error(`Gameobj not found: ${id}`);
 		const [x, y, z] = position;
-		obj.translate(x, y);
+		obj.translate(x, y, z, true);
 		this.nextFrame();
 	}
 	showWinner(winnerUsername: string): void {
-		throw new Error("Method not implemented.");
+		alert(`Game won by: ${winnerUsername}`);
 	}
 	showGoal(scoredBy: string): void {
-		throw new Error("Method not implemented.");
+		alert(`Goal by: ${scoredBy}`)
 	}
-	updateCounts(scores: number, multipliers: number, goals: number): void {
-		throw new Error("Method not implemented.");
+	updateCounts(scores: number, multipliers: number, goals: number, userid: string): void {
+		if(userid === "player1" && 
+			this.player1Score != null && 
+			this.player1Bonus != null &&
+			this.player1Username != null && 
+			this.player1Goals != null) {
+				this.player1Score.textContent = scores.toString();
+				this.player1Bonus.textContent = multipliers.toString();
+				this.player1Username.textContent = userid;
+				this.player1Goals.textContent = goals.toString();
+		} else {
+			if(this.player2Bonus != null &&
+				this.player2Score != null &&
+				this.player2Username != null &&
+				this.player2Goals != null){
+					this.player2Bonus.textContent = multipliers.toString();
+					this.player2Score.textContent = scores.toString();
+					this.player2Username.textContent = userid;
+					this.player2Goals.textContent = goals.toString();
+			}
+		}
 	}
 }

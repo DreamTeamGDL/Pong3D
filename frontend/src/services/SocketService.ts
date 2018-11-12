@@ -92,7 +92,11 @@ export default class SocketService {
 
     private updateScores(player: PlayerScores){
         if(this.scene != null){
-            this.scene.updateCounts(player.currentScore, player.currentMultipliers, player.currentGoals);
+            this.scene.updateCounts(
+                player.currentScore, 
+                player.currentMultipliers, 
+                player.currentGoals, 
+                player.userId);
         }
     }
 
