@@ -18,6 +18,7 @@ export default class SocketService {
                 const action = JSON.parse(rawMessage) as Action;
                 this.processMessage(action);
             } catch (e) {
+                console.error(`Message: ${rawMessage}`);
                 console.error("Error in parsing JSON: " + e.message);
             }
         });
@@ -89,7 +90,6 @@ export default class SocketService {
 
     private moveObjectMessage(data: Move){
         let position = [data.x, data.y, data.z];
-        console.log(position);
         if (this.scene != null) {
             this.scene.moveObject(data.objectId, position);
         }

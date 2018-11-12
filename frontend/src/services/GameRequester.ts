@@ -3,7 +3,7 @@ import Scene from "../webgl/scene";
 
 export default class GameRequester {
 
-    private static readonly BaseUrl = "http://10.0.1.22";
+    private static readonly BaseUrl = "http://192.168.1.68";
     private static readonly Port = 3000;
     private static get Url() {
         return `${this.BaseUrl}:${this.Port}/`;
