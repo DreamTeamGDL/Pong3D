@@ -8,11 +8,14 @@ document.addEventListener("DOMContentLoaded", () => {
 async function main(){
     const scene = new Scene("canvas", false);
     scene.launch();
-    let username = (document.getElementById("nicknameTxt") as HTMLInputElement).value;
-    let requester = new GameRequester();
-    requester.start(username);
 
-    setTimeout(() => {
-        console.log("Hello");
-    }, 5000000);
+
+    let inputBox = (document.getElementById("inputBox") as HTMLElement);
+    let scoreBoard = (document.getElementById("scoreBoard") as HTMLElement);
+    let username = (document.getElementById("username") as HTMLInputElement).value;
+    let requester = new GameRequester();
+    
+    requester.start(username);
+    inputBox.style.display = "none";
+    scoreBoard.style.display = "block";
 }
