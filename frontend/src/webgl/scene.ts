@@ -9,12 +9,15 @@ export default class Scene extends GLScene implements IMutableScene {
 	private player2 = new Rectangle(this.gl, new Point4D(0.5, 0,-2), 0.3);
 	private ball = new Rectangle(this.gl, new Point4D(0, 0, 0), 0.3);
 
+	private static readonly PINK_PONG = new Point4D(255/255, 13/255, 214/255, 1);
+	private static readonly BLUE_PONG = new Point4D(18/255, 154/255, 255/255, 1);
+
 	private gameObjects: Map<string, IDrawable> = new Map();
 	
 	public constructor(canvasId: string, animate: boolean) {
 		super(canvasId, animate);
-		this.player1.setColor(Point4D.Red);
-		this.player2.setColor(Point4D.Blue);
+		this.player1.setColor(Scene.PINK_PONG);
+		this.player2.setColor(Scene.BLUE_PONG);
 		this.ball.setColor(Point4D.Green);
 		this.onInit();
 	}
@@ -43,6 +46,10 @@ export default class Scene extends GLScene implements IMutableScene {
 		this.gl.uniform1f(pointSize, 5);
 		const transformMatrix = this.transform();
 		this.gl.uniformMatrix4fv(uTransform, false, transformMatrix);
+	}
+
+	private createWireframes() {
+		
 	}
 
 	private click(e: MouseEvent) {
@@ -97,7 +104,7 @@ export default class Scene extends GLScene implements IMutableScene {
 		const obj = this.gameObjects.has(id) ? this.gameObjects.get(id)! : null;
 		if (obj == null) throw new Error(`Gameobj not found: ${id}`);
 		const [x, y, z] = position;
-		obj.translate(x, y, z, true);
+		obj.translate(x, y);
 		this.nextFrame();
 	}
 	showWinner(winnerUsername: string): void {
