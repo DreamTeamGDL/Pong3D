@@ -37,21 +37,38 @@
     <script src="dist/bundle.js"></script>
 </head>
 <body>
-    <!--<label for="nicknameTxt">Nickname:</label>
-    <input id="nicknameTxt" type="text" />
-    <button id="startButton">Start</button>
-    <br><br>
-    <div class="user-input">
-        <label for="nicknameTxt">Nickname:</label><br>
-        <input id="nicknameTxt" type="text" /><br>
-        <button id="startButton">Start</button>
-    </div>-->
-    <img id="logo" src="./img/pong-logo.svg" alt="pong-logo">
+    <img id="logo" src="./img/pong-logo-xl.png" alt="pong-logo">
+    <img id="palette1" src="./img/palette.png" alt="palette1">
+    <img id="palette2" src="./img/palette.png" alt="palette2">
+    <img id="ball1" src="./img/ball.png" alt="ball1">
+    <img id="ball2" src="./img/ball-blue.png" alt="ball2">
     <div class="wrapper">
-        <div class="black-screen"></div>
-        <canvas id="canvas" width="1080" height="720"></canvas><br>
-        <button id="startButton">START</button>
-        <input id="nicknameTxt" type="text">Username: </input>
+        <div id="inputBox">
+            <label for="username">Username: </label>
+            <input id="username" type="text"/>
+            <button id="startButton">Start </button>
+        </div>
+        <div id="errorBox">
+            <p>The username should be between 3 and 10 characters.</p>
+            <button id="errorButton">Ok</button>
+        </div>
+        <div id="scoreBoard">
+            <!-- Player 1 -->
+            <div id="player1">
+                <p>P1 <span id="p1-username">eldelcesareldel</span></p>
+                <p>Score <span id="p1-score">27000</span></p>
+                <p>Bonus x<span id="p1-bonus">3</span></p>
+            </div>
+
+            <!-- Player 2 -->
+            <div id="player2">
+                <p>P2 <span id="p2-username">chris</span></p>
+                <p>Score <span id="p2-score">31200</span></p>
+                <p>Bonus x<span id="p2-bonus">10</span></p>
+            </div>
+            
+        </div>
+        <canvas id="canvas" width="1080" height="720"></canvas>
     </div>
     
 </body>
