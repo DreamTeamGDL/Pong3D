@@ -5,7 +5,7 @@ interface IMutableScene {
 
     showGoal(scoredBy: string): void;
 
-    updateCounts(score: number, multiplier: number, goals: number): void;
+    updateCounts(scores: number, multipliers: number, goals: number, userid: string): void;
 
     setCameraOrien(fromFront: boolean): void;
 }

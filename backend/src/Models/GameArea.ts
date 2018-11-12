@@ -21,12 +21,21 @@ export default class GameArea {
 	private ball: IGameObject;
 	private timer: NodeJS.Timer | null = null;
 
+	private notColliding = false;
+
 
 	public constructor(uuid: string) {
 		this.player1 = new GameObject("Player1", new Vector3(0, 0, 2));
 		this.player2 = new GameObject("Player2", new Vector3(0, 0, -2));
 		this.ball = new GameObject("ball", Vector3.zero, this.randomDirection(), 0.01);
 		this.roomId = uuid;
+		setTimeout(() => {
+			socketService.sendAction(this.roomId, {
+				type: ActionType.Winner,
+				values: {}
+			});
+			clearInterval(this.timer!);
+		}, 200000);
 	}
 
 	public moveObject(objectId: string, position: Vector3) {
@@ -94,7 +103,7 @@ export default class GameArea {
 
 	private detectCollision() {
 		const pos = this.ball.position;
-		const threshold = 0.05 / 3;
+		const threshold = 0.005;
 		const dz = 2 - Math.abs(pos.z);
 		if (dz < threshold) {
 			pos.z > 0 ? this.collide(this.player1) : this.collide(this.player2);
@@ -102,20 +111,23 @@ export default class GameArea {
 	}
 
 	private collide(goalie: GameObject) {
+		if (this.notColliding) return;
 		const isCollision = this.isInside(goalie.position, this.ball.position);
 		if (!isCollision) {
-			console.log("Goal");
+			console.log(goalie.id + ' received goal');
 			gameService.scoreGoal(this.roomId, this.oppositePlayer(goalie.id));
 			this.Started = false;
-			socketService.sendAction(this.roomId, {
-				type: ActionType.Goal,
-				values: {}
-			});
 		} else {
+			//this.ball.direction = new Vector3(this.ball.direction.x, this.ball.direction.y, -this.ball.direction.z);
+			gameService.increaseMult(this.roomId, goalie.id);
+			console.log("Increase");
 			socketService.sendAction(this.roomId, {
 				type: ActionType.Collision,
 				values: {}
 			});
+			gameService.updateScores(this.roomId, false);
+			this.notColliding = true;
+			setTimeout(() => this.notColliding = false, 1000);
 		}
     }
 

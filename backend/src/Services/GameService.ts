@@ -11,13 +11,17 @@ class GameService {
 	public static instance: GameService = new GameService();
 	private gameRepository: GameRepository;
 	private games: Game[] = [];
+	private playerMap = new Map<string, string>();
 
 	private constructor() {
 		this.gameRepository = new GameRepository();
+
 	}
 
 	public async createGame(gameId: string, player1: string, player2: string) {
-		this.games.push({
+		this.playerMap.set(player1, "Player1");
+        this.playerMap.set(player2, "Player2");
+        this.games.push({
 			id: gameId,
 			player1: this.initStats(player1),
 			player2: this.initStats(player2),
@@ -46,22 +50,43 @@ class GameService {
 		game.gameArea.moveObject(objectId, position);
 	}
 
+	public increaseMult(gameId: string, player: string) {
+        const game = this.games.find(g => g.id == gameId)!;
+        const playerName = this.playerMap.get(game.player1.username)!;
+		if (playerName == player) {
+			game.player1.multiplier++;
+		} else {
+            game.player2.multiplier++;
+        }
+    }
+
 	public async scoreGoal(gameId: string, player: string) {
 		//const game = await this.gameRepository.getGame(gameId);
 		const game = this.games.find(g => g.id == gameId)!;
-		if (game.player1.username == player) {
+		const playerName = this.playerMap.get(game.player1.username)!;
+		if (playerName == player) {
             game.player1 = this.increaseGoals(game.player1);
-            game.player1.multiplier += Math.floor(game.player2.multiplier / 2);
-            game.player2.multiplier -= Math.ceil(game.player2.multiplier / 2);
-		} else {
+            game.player1.multiplier += Math.ceil(game.player2.multiplier / 2);
+            game.player2.multiplier -= Math.floor(game.player2.multiplier / 2);
+            if (game.player2.multiplier < 1) game.player2.multiplier = 1;
+        } else {
             game.player2 = this.increaseGoals(game.player2);
-            game.player2.multiplier += Math.floor(game.player1.multiplier / 2);
-            game.player1.multiplier -= Math.ceil(game.player1.multiplier / 2);
-		}
-		socketService.sendAction(gameId, {
-			type: ActionType.Goal,
-			values: {
-				players: [{
+            game.player2.multiplier += Math.ceil(game.player1.multiplier / 2);
+            game.player1.multiplier -= Math.floor(game.player1.multiplier / 2);
+            if (game.player1.multiplier < 1) game.player1.multiplier = 1;
+        }
+        console.log(game.player1);
+		console.log(game.player2);
+		this.updateScores(gameId);
+		//await this.gameRepository.updateGame(game);
+	}
+
+	public updateScores(gameId: string, asGoal: boolean = true) {
+        const game = this.games.find(g => g.id == gameId)!;
+        socketService.sendAction(gameId, {
+            type: asGoal ? ActionType.Goal : ActionType.UpdateScores,
+            values: {
+                players: [{
                     userId: "Player1",
                     currentGoals: game.player1.goals,
                     currentMultipliers: game.player1.multiplier,
@@ -71,15 +96,14 @@ class GameService {
                     currentGoals: game.player2.goals,
                     currentMultipliers: game.player2.multiplier,
                     currentScore: game.player2.score
-				}]
-			}
-		});
-		//await this.gameRepository.updateGame(game);
+                }]
+            }
+        });
 	}
 
 	private increaseGoals(stats: GameStats): GameStats {
 		stats.goals++;
-		stats.score += 100;
+		stats.score += 100 * stats.multiplier;
 		return stats;
 	}
 

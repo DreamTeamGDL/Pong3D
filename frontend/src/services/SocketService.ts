@@ -83,23 +83,22 @@ export default class SocketService {
                 break;
             case ActionType.Goal:
                 console.log("Goal");
+                const info = data.values as Scores;
                 const goal = document.getElementById("goalAudio")! as HTMLAudioElement;
                 goal.currentTime = 0;
                 goal.play();
                 setTimeout(() => goal.pause(), 4999);
                 if(this.scene != null){
-                    let goal = data.values as UserEvent;
-                    this.scene.showGoal(goal.userId);
+                    //let goal = data.values as UserEvent;
+                    //this.scene.showGoal(goal.userId);
+                    this.updateScores(info.players[0]);
+                    this.updateScores(info.players[1]);
                 }
                 break;
             case ActionType.UpdateScores:
                 let scores = data.values as Scores;
-                let myUser = scores.players.find(player => player.userId === this.userId);
-                if(myUser != undefined){
-                    this.updateScores(myUser);
-                } else {
-                    console.error("SHIT HAPPENED (Fuck Chris).");
-                }
+                this.updateScores(scores.players[0]);
+                this.updateScores(scores.players[1]);
                 break;
             case ActionType.Collision:
                 console.log("Collision");

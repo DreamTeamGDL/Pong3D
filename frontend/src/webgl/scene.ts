@@ -34,15 +34,15 @@ export default class Scene extends GLScene implements IMutableScene {
 		this.ball.setColor(Point4D.Green);
 		this.onInit();
 
-        this.player1Username = document.getElementById("player1Username") as HTMLSpanElement;
-        this.player1Score = document.getElementById("player1Score") as HTMLSpanElement;
-        this.player1Bonus = document.getElementById("player1Bonus") as HTMLSpanElement;
-        this.player1Goals = document.getElementById("player1Goals") as HTMLSpanElement;
+        this.player1Username = document.getElementById("p1-username") as HTMLSpanElement;
+        this.player1Score = document.getElementById("p1-score") as HTMLSpanElement;
+        this.player1Bonus = document.getElementById("p1-bonus") as HTMLSpanElement;
+        this.player1Goals = document.getElementById("p1-goals") as HTMLSpanElement;
 
-        this.player2Username = document.getElementById("player2Username") as HTMLSpanElement;
-        this.player2Score = document.getElementById("player2Score") as HTMLSpanElement;
-        this.player2Bonus = document.getElementById("player2Bonus") as HTMLSpanElement;
-        this.player2Goals = document.getElementById("player2Goals") as HTMLSpanElement;
+        this.player2Username = document.getElementById("p2-username") as HTMLSpanElement;
+        this.player2Score = document.getElementById("p2-score") as HTMLSpanElement;
+        this.player2Bonus = document.getElementById("p2-bonus") as HTMLSpanElement;
+        this.player2Goals = document.getElementById("p2-goals") as HTMLSpanElement;
     }
 
 	protected onInit() {
@@ -163,11 +163,11 @@ export default class Scene extends GLScene implements IMutableScene {
                 //this.player1.translate(0, -0.2);
 				break;
 			case "ArrowLeft":
-				this.sendMove(-0.1, 0);
+				this.sendMove(-0.1 * direction, 0);
 				//this.player1.translate(-0.1, 0);
 				break;
 			case "ArrowRight":
-				this.sendMove(0.1, 0);
+				this.sendMove(0.1 * direction, 0);
 				//this.player1.translate(0.1, 0);
             default:
                 break;
@@ -183,7 +183,7 @@ export default class Scene extends GLScene implements IMutableScene {
 
 	private transform(): Float32Array {
 		const aspectRatio = this.canvas.height / this.canvas.width;
-		const camera = new GLCamera(5, aspectRatio);
+		const camera = new GLCamera(this.cameraZ, aspectRatio);
 		return camera.observe();
 	}
 
@@ -219,13 +219,13 @@ export default class Scene extends GLScene implements IMutableScene {
 		this.nextFrame();
 	}
     showWinner(winnerUsername: string): void {
-        alert(`Game won by: ${winnerUsername}`);
+        //alert(`Game won by: ${winnerUsername}`);
     }
     showGoal(scoredBy: string): void {
-        alert(`Goal by: ${scoredBy}`)
+        //alert(`Goal by: ${scoredBy}`)
     }
     updateCounts(scores: number, multipliers: number, goals: number, userid: string): void {
-        if(userid === "player1" &&
+        if(userid === "Player1" &&
             this.player1Score != null &&
             this.player1Bonus != null &&
             this.player1Username != null &&
